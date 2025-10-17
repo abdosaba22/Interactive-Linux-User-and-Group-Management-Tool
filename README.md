@@ -28,15 +28,17 @@ The script provides a comprehensive main menu covering the following actions:
 
 ---
 
-## 🛠️ Prerequisites
+## 🛠️ Prerequisites (CentOS/RHEL)
 
 To run this script, you need:
 
-1.  **A Linux environment** (Tested on Ubuntu/Debian based systems).
-2.  **`whiptail` utility**: This is required for the interactive menus.
+1.  **A CentOS or RHEL environment.**
+2.  **`whiptail` utility**: This is required for the interactive menus. On CentOS/RHEL, the `whiptail` utility is typically part of the `newt` package.
     ```bash
-    # Install whiptail if it's not already present
-    sudo apt-get update && sudo apt-get install whiptail -y
+    # Install whiptail (part of the 'newt' package) using YUM
+    sudo yum install newt -y
+    # OR, if you are on CentOS/RHEL 8 or newer, use DNF:
+    # sudo dnf install newt -y
     ```
 3.  **Superuser (sudo) privileges** to perform user/group modifications.
 
@@ -72,4 +74,5 @@ To run this script, you need:
 | **Developer** | **Abdalrahman Amin Sabaa** |
 | **Role** | System Admin and DevOps Trainee |
 | **Contact Email** | abdalrahmansaba@gmail.com |
-| **LinkedIn URL** | [Connect with me on LinkedIn]([<Insert Your LinkedIn Profile Link Here>](https://www.linkedin.com/in/abdalrahman-amin-sabaa/)) |
+| **LinkedIn URL** | [Connect with me on LinkedIn](<Insert Your LinkedIn Profile Link Here>) |
+| **GitHub Repo** | [View Source Code](<Insert Your GitHub Repository Link Here>) |
