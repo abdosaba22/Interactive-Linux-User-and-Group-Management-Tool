@@ -74,4 +74,4 @@ To run this script, you need:
 | **Developer** | **Abdalrahman Amin Sabaa** |
 | **Role** | System Admin and DevOps Trainee |
 | **Contact Email** | abdalrahmansaba@gmail.com |
-| **LinkedIn URL** | [Connect with me on LinkedIn]([<Insert Your LinkedIn Profile Link Here>](https://www.linkedin.com/in/abdalrahman-amin-sabaa/)) |
+| **LinkedIn URL** | [Connect with me on LinkedIn]([https://www.linkedin.com/in/abdalrahman-amin-sabaa/] |
