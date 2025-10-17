@@ -1,0 +1,31 @@
+#!/bin/bash
+DeleteUser_Function() {
+    local usernameVAR confirm_delete
+    local INPUT_TITLE="Delete User"
+
+    # 1. Get Required Input: Username
+    usernameVAR=$(whiptail --inputbox "Type the User name to delete:" 8 39 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+    exitstatus=$?
+    
+    if [ $exitstatus -ne 0 ] || [ -z "$usernameVAR" ]; then
+        whiptail --msgbox "Operation cancelled or username is empty." 8 40 --title "Error"
+        return 1
+    fi
+
+    # 2. Confirmation Message (Yes/No)
+    if whiptail --title "$INPUT_TITLE" --yesno "WARNING: Are you absolutely sure you want to permanently delete user '$usernameVAR' and their home directory?" 10 60; then
+        
+        # 3. Execute Deletion (using userdel -r to remove home directory)
+        whiptail --msgbox "Deleting user $usernameVAR and home directory..." 8 50 --title "Processing"
+        
+        sudo userdel -r "$usernameVAR"
+        
+        if [ $? -eq 0 ]; then
+            whiptail --msgbox "User '$usernameVAR' deleted permanently." 8 50 --title "Success"
+        else
+            whiptail --msgbox "Error deleting user '$usernameVAR'. Check permissions/logs." 8 60 --title "Failure"
+        fi
+    else
+        whiptail --msgbox "Deletion of user '$usernameVAR' cancelled." 8 50
+    fi
+}

@@ -81,20 +81,20 @@ AddUser_Function() {
     # ----------------------------------------------------------------------
     # 6. Construct and Execute the useradd command
     # ----------------------------------------------------------------------
-
+set -x
     # Start with the basic command (using -m to create home directory)
     USERADD_CMD="sudo useradd -m "
    # Add optional parameters only if they are not empty
-   [ ! -z "$homedirVAR" ] && USERADD_CMD+=" -d $homedirVAR"
-   [ ! -z "$commentVAR" ] && USERADD_CMD+=" -c $commentVAR"
-   [ ! -z "$groupVAR" ] && USERADD_CMD+=" -g $groupVAR"
+   [ ! -z "$homedirVAR" ] && USERADD_CMD+=" -d $homedirVAR "
+   [ ! -z "$commentVAR" ] && USERADD_CMD+=" -c '$commentVAR' "
+   [ ! -z "$groupVAR" ] && USERADD_CMD+=" -g $groupVAR "
 
     # Only add UID if it's a non-empty number
-   if [ ! -z "$uidVAR" ] && [[ "$uidVAR" =~ ^[0-9]+$ ]]; then USERADD_CMD+="-u $uidVAR" ; fi
+   if [ ! -z "$uidVAR" ] && [[ "$uidVAR" =~ ^[0-9]+$ ]]; then USERADD_CMD+="   -u $uidVAR" ; fi
 
     # Append the username
     USERADD_CMD+=" $usernameVAR"
-
+set +x
     # Confirmation/Execution Dialog
     whiptail --msgbox "Ready to execute:\n$USERADD_CMD\n\nYou will be prompted to set the password next." 12 70 --title "Confirmation"
     echo $USERADD_CMD

@@ -5,7 +5,7 @@ AddGroup_Function() {
 local groupVAR groupidVAR
 groupVAR=$(whiptail --inputbox "Enter the group name:" 10 50 "" --title "Add Group" 3>&1 1>&2 2>&3)
 
-
+set -x
 if whiptail --title "Add Group" --yesno "Do you want to specify a group ID (GID)? (Default: next available GID)" 8 78; then
         groupidVAR=$(whiptail --inputbox "Enter the custom UID (number):" 10 50 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
         # If the user presses Cancel on the inputbox, use an empty string
@@ -13,7 +13,7 @@ if whiptail --title "Add Group" --yesno "Do you want to specify a group ID (GID)
 else
         sudo groupadd $gruopVAR
 fi
-
+set +x
 if [ $? -eq 0 ]; then 
 	whiptail --msgbox "$groupVAR group Added successfully." 8 50 --title "Success"
 else

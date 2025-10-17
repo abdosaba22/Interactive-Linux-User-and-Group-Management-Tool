@@ -48,7 +48,7 @@ HandleOption_Function() {
 	"LIST_GROUPS" ) 	ListGroups_Function;; # 
 	"DISABLE_USER" )	DisableUser_Function;; # 
 	"ENABLE_USER" ) 	EnableUser_Function;; # 
-	"CAHNGE_PASS" ) 	ChangePassword_Function;; # 
+	"CHANGE_PASS" ) 	ChangePassword_Function;; # 
 	"ABOUT" ) 		ABOUT_Function;;
 	"EXIT" ) 		Exit_Function;;
 esac
