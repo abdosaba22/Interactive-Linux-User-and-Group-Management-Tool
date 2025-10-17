@@ -1,0 +1,78 @@
+#!/bin/bash
+
+
+source myminiadduser
+source myminimodifyuser
+source myminideleteuser
+source myminilistusers
+source myminiaddgroup
+source myminimodifygroup
+source myminideletegroup
+source myminilistgroups
+source myminidisableuser
+source myminienableuser
+source myminichangepassword
+source myminiabout
+source myminiexit
+
+
+
+# This function used to  show the options in main menu for user 
+MainMenue_Function() {
+	echo $(whiptail --title "Main Menu" --menu "Choose an option" 25 78 16 \
+	   "ADD_USER"       "Add a user to the system." \
+	   "MODIFY_USER"    "Modify an existing user." \
+	   "DELETE_USER"    "Delete an existing user." \
+	   "LIST_USERS"     "List all users on the system." \
+	   "ADD_GROUP"      "Add a user group to the system." \
+	   "MODIFY_GROUP"   "Modify a group and its list of members." \
+	   "DELETE_GROUP"   "Delete an existing group." \
+	   "LIST_GROUPS"    "List all groups on the system." \
+	   "DISABLE_USER"   "Lock the user account." \
+	   "ENABLE_USER"    "Unlock the user account." \
+	   "CHANGE_PASS"    "Change Password of a user." \
+	   "ABOUT"          "Information about this program." \
+	   "EXIT"           "Exit this program." 3>&1 1>&2 2>&3)
+}
+
+# This function used to handle the selected option from user to call the best func
+HandleOption_Function() {
+   case $1 in 
+	"ADD_USER" )    	AddUser_Function;; # call function to add user
+	"MODIFY_USER" ) 	ModifyUser_Function;; # call function to  
+	"DELETE_USER" ) 	DeleteUser_Function;; # 
+	"LIST_USERS" )		ListUsers_Function;; # 
+	"ADD_GROUP" ) 		AddGroup_Function;; #
+	"MODIFY_GROUP" ) 	ModifyGroup_Function;; # 
+	"DELETE_GROUP" ) 	DeleteGroup_Function;; # 
+	"LIST_GROUPS" ) 	ListGroups_Function;; # 
+	"DISABLE_USER" )	DisableUser_Function;; # 
+	"ENABLE_USER" ) 	EnableUser_Function;; # 
+	"CAHNGE_PASS" ) 	ChangePassword_Function;; # 
+	"ABOUT" ) 		ABOUT_Function;;
+	"EXIT" ) 		Exit_Function;;
+esac
+}
+
+##############################################################################
+##############################################################################
+#  			 Script start from here                              #
+##############################################################################
+##############################################################################
+
+echo "This is a Welcome Message to Abdo's Mini Bash Project." > test_textbox
+#                  filename height width
+whiptail --title "Hello" --textbox test_textbox 12 80
+
+# Use loop to be infinte and stop when user choose exit
+while [ 1 ]; do
+# if select yes to continue will show the main menu else will exit
+if whiptail --title "To continue" --yesno "To Continue Select Yes to start." 8 78; then
+    echo "User selected Yes, exit status was $?."
+    choosenVAL=$(MainMenue_Function)
+    HandleOption_Function $choosenVAL
+else
+    echo "User selected No, exit status was $?."
+    exit
+fi
+done 

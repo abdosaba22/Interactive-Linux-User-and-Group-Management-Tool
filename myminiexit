@@ -1,0 +1,21 @@
+#!/bin/bash
+
+Exit_Function() {
+    local EXIT_TITLE="Confirm Exit"
+    local EXIT_MESSAGE="Are you sure you want to exit the User Management Tool? Select YES to confirm, or NO/Cancel to return to the Main Menu."
+
+    # Use whiptail --yesno to ask for confirmation
+    if whiptail --yesno "$EXIT_MESSAGE" 10 60 --title "$EXIT_TITLE"; then
+        # If the user selected YES (exit status 0)
+
+        # Display final goodbye message before exiting
+        whiptail --msgbox "Thank you for using the User Management Tool. Goodbye!" 8 50 --title "Exiting Program"
+
+        # Exit the entire script
+        exit 0
+    else
+        # If the user selected NO or pressed Cancel (exit status 1 or 255)
+        # We simply return, and the main menu loop will continue.
+        return 0
+    fi
+}

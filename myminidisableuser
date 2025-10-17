@@ -1,0 +1,35 @@
+#!/bin/bash
+
+DisableUser_Function() {
+    local usernameVAR
+    local INPUT_TITLE="Disable User"
+
+    # 1. Get Required Input: Username
+    usernameVAR=$(whiptail --inputbox "Type the User name to DISABLE (Lock):" 8 45 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+    exitstatus=$?
+
+    if [ $exitstatus -ne 0 ] || [ -z "$usernameVAR" ]; then
+        whiptail --msgbox "Operation cancelled or username is empty." 8 40 --title "Error"
+        return 1
+    fi
+
+    # Check if user exists
+    id $usernameVAR
+    if [ $? -ne 0 ]; then
+        whiptail --msgbox "Error: User '$usernameVAR' does not exist." 8 50 --title "Error"
+        return 1
+    fi
+
+    # 2. Confirmation and Execution
+    if whiptail --title "$INPUT_TITLE" --yesno "Are you sure you want to permanently lock/disable user '$usernameVAR'?" 8 50; then
+        sudo usermod -L "$usernameVAR"
+        
+        if [ $? -eq 0 ]; then
+            whiptail --msgbox "User '$usernameVAR' has been successfully DISABLED (Locked)." 8 50 --title "Success"
+        else
+            whiptail --msgbox "Error disabling user '$usernameVAR'." 8 50 --title "Failure"
+        fi
+    else
+        whiptail --msgbox "Operation cancelled." 8 40
+    fi
+}

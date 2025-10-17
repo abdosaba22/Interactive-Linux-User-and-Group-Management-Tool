@@ -1,0 +1,36 @@
+#!/bin/bash
+
+DeleteGroup_Function() {
+    local groupnameVAR
+    local INPUT_TITLE="Delete Group"
+
+    # 1. Get Required Input: Group Name
+    groupnameVAR=$(whiptail --inputbox "Type the Group name to delete:" 8 45 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+    exitstatus=$?
+    
+    if [ $exitstatus -ne 0 ] || [ -z "$groupnameVAR" ]; then
+        whiptail --msgbox "Operation cancelled or group name is empty." 8 40 --title "Error"
+        return 1
+    fi
+
+    # 2. Check if group exists using AWK
+    if [ $(awk -F: '$1 == "'"$groupnameVAR"'" {print $0}' /etc/group | wc -l) -eq 0 ]; then
+        whiptail --msgbox "Error: Group '$groupnameVAR' does not exist." 8 50 --title "Error"
+        return 1
+    fi
+    # 3. Confirmation Message (Yes/No)
+    if whiptail --title "$INPUT_TITLE" --yesno "WARNING: Are you absolutely sure you want to permanently delete Group '$groupnameVAR' " 10 60; then        
+        # 4. Execute Deletion
+        whiptail --msgbox "Deleting group $groupnameVAR..." 8 50 --title "Processing"
+        sudo groupdel "$groupnameVAR"
+        
+        if [ $? -eq 0 ]; then
+            whiptail --msgbox "Group '$groupnameVAR' deleted successfully." 8 50 --title "Success"
+        else
+            whiptail --msgbox "Error deleting group '$groupnameVAR'. Check permissions/logs." 8 60 --title "Failure"
+        fi
+    else
+        whiptail --msgbox "Deletion of group '$groupnameVAR' cancelled." 8 50
+    fi
+}
+

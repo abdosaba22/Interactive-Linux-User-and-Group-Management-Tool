@@ -1,0 +1,9 @@
+#!/bin/bash
+
+ListUsers_Function() {
+# extract the field of user from the file use awk
+local listedusersVAR=$(awk -F ":" '{print NR,$1}' /etc/passwd ) 
+
+whiptail --scrolltext --msgbox  "Users:\n$listedusersVAR" 25 80 --title "List Users"
+
+}

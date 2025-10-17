@@ -1,0 +1,112 @@
+#!/bin/bash
+
+AddUser_Function() {
+
+    # Declare all variables at the beginning
+    local usernameVAR homedirVAR commentVAR groupVAR uidVAR exitstatus
+    local INPUT_TITLE="Add New User"
+    local USERADD_CMD# To hold the final command
+
+    # ----------------------------------------------------------------------
+    # 1. Get Required Input: Username
+    # ----------------------------------------------------------------------
+    # Capturing input by swapping stderr (where whiptail sends the result) to stdout
+    usernameVAR=$(whiptail --inputbox "Type the User name..!(must)" 8 39 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+    exitstatus=$?
+    
+    # need to check the user given by id comm and loop over it \
+    # until be available user 
+    # loop 
+
+
+    if [ $exitstatus -eq 0 ] && [ -n "$usernameVAR" ]; then
+        # Successfully entered a non-empty username
+        echo "User selected Ok and entered $usernameVAR"
+    elif [ -z "$usernameVAR" ]; then
+        # User pressed OK but didn't enter a name
+        whiptail --msgbox "Error: Username is required. Operation cancelled." 8 40 --title "Error"
+        return 1
+    else
+        # User selected Cancel
+        echo "User selected Cancel."
+        return 1
+    fi
+
+    # ----------------------------------------------------------------------
+    # 2. Optional: Home Directory
+    # ----------------------------------------------------------------------
+    if whiptail --title "$INPUT_TITLE" --yesno "Do you want to edit home directory? (Default: /home/$usernameVAR)" 8 78; then
+        # If YES, prompt for input, using the redirection trick again
+        homedirVAR=$(whiptail --inputbox "Enter custom home directory path:" 10 50 "/home/$usernameVAR" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+        # If the user presses Cancel on the inputbox, fall back to the default path
+        if [ $? -ne 0 ]; then homedirVAR="/home/$usernameVAR"; fi
+    else
+        # If NO, use the default path
+        homedirVAR="/home/$usernameVAR"
+    fi
+
+    # ----------------------------------------------------------------------
+    # 3. Optional: Comment (GECOS field)
+    # ----------------------------------------------------------------------
+    if whiptail --title "$INPUT_TITLE" --yesno "Do you want to add a comment (full name, etc.)?" 8 78; then
+        commentVAR=$(whiptail --inputbox "Enter a comment for the user:" 10 50 "$usernameVAR" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+        # If the user presses Cancel on the inputbox, use an empty string
+        if [ $? -ne 0 ]; then commentVAR=""; fi
+    else
+        commentVAR=""
+    fi
+
+    # ----------------------------------------------------------------------
+    # 4. Optional: Group Name
+    # ----------------------------------------------------------------------
+    if whiptail --title "$INPUT_TITLE" --yesno "Do you want to specify a primary group? (Default: group of same name created)" 8 78; then
+        groupVAR=$(whiptail --inputbox "Enter the primary group name:" 10 50 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+        # If the user presses Cancel on the inputbox, use an empty string
+        if [ $? -ne 0 ]; then groupVAR=""; fi
+    else
+        groupVAR=""
+    fi
+
+    # ----------------------------------------------------------------------
+    # 5. Optional: UID
+    # ----------------------------------------------------------------------
+    if whiptail --title "$INPUT_TITLE" --yesno "Do you want to specify a custom User ID (UID)? (Default: next available UID)" 8 78; then
+        uidVAR=$(whiptail --inputbox "Enter the custom UID (number):" 10 50 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+        # If the user presses Cancel on the inputbox, use an empty string
+        if [ $? -ne 0 ]; then uidVAR=""; fi
+    else
+        uidVAR=""
+    fi
+
+    # ----------------------------------------------------------------------
+    # 6. Construct and Execute the useradd command
+    # ----------------------------------------------------------------------
+
+    # Start with the basic command (using -m to create home directory)
+    USERADD_CMD="sudo useradd -m "
+   # Add optional parameters only if they are not empty
+   [ ! -z "$homedirVAR" ] && USERADD_CMD+=" -d $homedirVAR"
+   [ ! -z "$commentVAR" ] && USERADD_CMD+=" -c $commentVAR"
+   [ ! -z "$groupVAR" ] && USERADD_CMD+=" -g $groupVAR"
+
+    # Only add UID if it's a non-empty number
+   if [ ! -z "$uidVAR" ] && [[ "$uidVAR" =~ ^[0-9]+$ ]]; then USERADD_CMD+="-u $uidVAR" ; fi
+
+    # Append the username
+    USERADD_CMD+=" $usernameVAR"
+
+    # Confirmation/Execution Dialog
+    whiptail --msgbox "Ready to execute:\n$USERADD_CMD\n\nYou will be prompted to set the password next." 12 70 --title "Confirmation"
+    echo $USERADD_CMD
+    # Execute the command
+    if $USERADD_CMD; then
+        whiptail --msgbox "User '$usernameVAR' created successfully! Now setting password..." 8 50 --title "Success"
+        # Use standard console for password input (more secure)
+	passwordVAR=$(whiptail --passwordbox "please enter your secret password" 8 78 --title "password dialog" 3>&1 1>&2 2>&3)
+        echo $passwordVAR |  sudo passwd $usernameVAR  --stdin
+        whiptail --msgbox "Password set successfully for $usernameVAR." 8 50 --title "Success"
+   
+    else
+        whiptail --msgbox "Failed to create user '$usernameVAR'. Please check system logs for errors." 8 50 --title "Failure"
+    fi
+}

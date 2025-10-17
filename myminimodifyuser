@@ -1,0 +1,99 @@
+#!/bin/bash
+
+ModifyUser_Function() {
+    # Declaration of local variables
+    local usernameVAR commentVAR groupVAR homedirVAR uidVAR choiceVAR
+    local INPUT_TITLE="Modify Existing User"
+
+    # 1. Get Required Input: Username
+    usernameVAR=$(whiptail --inputbox "Type the User name to modify:" 8 39 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+    exitstatus=$?
+
+    if [ $exitstatus -ne 0 ] || [ -z "$usernameVAR" ]; then
+        whiptail --msgbox "Operation cancelled or username is empty." 8 40 --title "Error"
+        return 1
+    fi
+    # Check if user exists (using 'id -u' which returns non-zero if user not found)
+    id $usernameVAR 
+    if [ $? -ne 0 ]; then
+        whiptail --msgbox "Error: User '$usernameVAR' does not exist." 8 50 --title "Error"
+        return 1
+    fi
+
+    # display options 
+    choiceVAR=$(whiptail --title "$INPUT_TITLE" --menu "Choose an option" 20 68 10 \
+	"COMMENT" "Modify the user's GECOS/Comment field." \
+     	"GROUP"   "Modify the user's Primary Group." \
+     	"HOME"    "Modify the user's Home Directory path." \
+       	"UID"     "Modify the user's User ID (UID)." \
+       	"PASSWORD" "Change the user's Password." 3>&1 1>&2 2>&3) 
+    
+    exitstatus=$?
+
+    if [ $exitstatus -ne 0 ]; then
+        whiptail --msgbox "Modification cancelled." 8 40
+        return 0
+    fi
+
+    # 3. Execute modification based on choice
+    case "$choiceVAR" in
+        "COMMENT")
+            commentVAR=$(whiptail --inputbox "Enter the new comment for $usernameVAR:" 10 50 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+            if [ $? -eq 0 ] && [ -n "$commentVAR" ]; then
+                sudo usermod -c "$commentVAR" $usernameVAR
+                whiptail --msgbox "Comment for $usernameVAR updated successfully." 8 50
+            else
+                whiptail --msgbox "Operation cancelled or comment was empty." 8 50
+            fi
+            ;;
+
+        "GROUP")
+            groupVAR=$(whiptail --inputbox "Enter the new primary group name for $usernameVAR:" 10 50 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+            if [ $? -eq 0 ] && [ -n "$groupVAR" ]; then
+                sudo usermod -g "$groupVAR" "$usernameVAR"
+                whiptail --msgbox "Primary group for $usernameVAR updated successfully." 8 50
+            else
+                whiptail --msgbox "Operation cancelled or group name was empty." 8 50
+            fi
+            ;;
+
+        "HOME")
+            homedirVAR=$(whiptail --inputbox "Enter the new home directory path for $usernameVAR:" 10 50 "/home/$usernameVAR" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+            if [ $? -eq 0 ] && [ -n "$homedirVAR" ]; then
+                # Use -d and -m to move the contents of the home directory
+                sudo usermod -d "$homedirVAR" -m "$usernameVAR"
+                whiptail --msgbox "Home directory for $usernameVAR updated and moved successfully." 8 60
+            else
+                whiptail --msgbox "Operation cancelled or home directory path was empty." 8 60
+            fi
+            ;;
+
+        "UID")
+            uidVAR=$(whiptail --inputbox "Enter the new UID (number) for $usernameVAR:" 10 50 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+            if [ $? -eq 0 ] && [ -n "$uidVAR" ] && [[ "$uidVAR" =~ ^[0-9]+$ ]]; then
+                sudo usermod -u "$uidVAR" "$usernameVAR"
+                whiptail --msgbox "UID for $usernameVAR updated successfully." 8 50
+            else
+                whiptail --msgbox "Error: Operation cancelled or invalid UID entered." 8 50 --title "Error"
+            fi
+            ;;
+
+        "PASSWORD")
+	 # Using standard console for password input
+ 	passwordVAR=$(whiptail --passwordbox "please enter your secret password" 8 78 --title "password dialog" 3>&1 1>&2 2>&3)
+        echo $passwordVAR |  sudo passwd $usernameVAR  --stdin
+        
+	whiptail --msgbox "Password set successfully for $usernameVAR." 8 50 --title "Success"
+
+      	 if [ $? -eq 0 ]; then
+           whiptail --msgbox "Password set successfully for $usernameVAR." 8 50
+       	 else
+            whiptail --msgbox "Failed to set password." 8 50 --title "Error"
+         fi
+        ;;
+
+        *)
+            whiptail --msgbox "Unknown option selected." 8 40
+            ;;
+    esac
+}

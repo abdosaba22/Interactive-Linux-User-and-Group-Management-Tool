@@ -1,0 +1,32 @@
+#!/bin/bash
+
+ABOUT_Function() {
+    local INFO_TITLE="Project Information and Developer Details"
+    
+    # Text content, formatted nicely with newlines (\n)
+    local ABOUT_TEXT="
+    ==================================================
+     User Management Project: Bash Shell Script
+    ==================================================
+    Course:         ITI Bash Scripting Course
+    Project Title:  Interactive User/Group Management Tool
+    Supervisor:     Eng. Romany Nageh
+    
+    --------------------------------------------------
+     Developer Information
+    --------------------------------------------------
+    Name:           Abdalrahman Amin Sabaa
+    Title:          System Admin and DevOps Trainee
+    Institution:    Information Technology Institute (ITI)
+    
+    Contact Details:
+    Email:          abdalrahmansaba@gmail.com
+    Phone:          01145763985
+    
+    GitHub Repo:    <https://github.com/abdosaba22/Interactive-Linux-User-and-Group-Management-Tool.git>
+    LinkedIn URL:   <https://www.linkedin.com/in/abdalrahman-amin-sabaa/>
+    =================================================="
+
+    # Display the information using whiptail --msgbox
+    whiptail --msgbox "$ABOUT_TEXT" 25 75 --title "$INFO_TITLE"
+}

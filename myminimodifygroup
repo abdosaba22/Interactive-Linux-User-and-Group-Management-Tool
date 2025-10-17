@@ -1,0 +1,82 @@
+#!/bin/bash
+
+ModifyGroup_Function() {
+    local groupnameVAR old_groupname new_groupname usernameVAR groupidVAR actionVAR
+    local INPUT_TITLE="Modify Existing Group"
+
+    # 1. Get Required Input: Group Name
+    old_groupname=$(whiptail --inputbox "Type the Group name to modify:" 8 39 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+    exitstatus=$?
+
+    if [ $exitstatus -ne 0 ] || [ -z "$old_groupname" ]; then
+        whiptail --msgbox "Operation cancelled or group name is empty." 8 40 --title "Error"
+        return 1
+    fi
+
+    # Check if group exists
+    if [ $(awk -F: '$1 == "'"$old_groupname"'" {print $0}' /etc/group | wc -l) -eq 0 ]; then
+        whiptail --msgbox "Error: Group '$old_groupname' does not exist." 8 50 --title "Error"
+        return 1
+    fi
+
+
+    # display options 
+    actionVAR=$(whiptail --title "$INPUT_TITLE" --menu "Choose an option" 20 68 10 \
+	    "RENAME" "Change the name of the group." \
+	    "ADD_USER" "Add a user to the group." \
+	    "GID" "Modify Group ID." \
+	    "REMOVE_USER" "Remove a user from the group." 3>&1 1>&2 2>&3)
+
+    exitstatus=$?
+    if [ $exitstatus -ne 0 ]; then
+        whiptail --msgbox "Modification cancelled." 8 40
+        return 0
+    fi
+
+    # 3. Execute modification based on choice
+    case "$actionVAR" in
+        "RENAME")
+            new_groupname=$(whiptail --inputbox "Enter the new name for group $old_groupname:" 10 50 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+            if [ $? -eq 0 ] && [ -n "$new_groupname" ]; then
+                sudo groupmod -n "$new_groupname" "$old_groupname"
+                whiptail --msgbox "Group '$old_groupname' renamed to '$new_groupname' successfully." 8 60
+            else
+                whiptail --msgbox "Operation cancelled or new name was empty." 8 50
+            fi
+            ;;
+        
+        "ADD_USER")
+            usernameVAR=$(whiptail --inputbox "Enter the user to ADD to group $old_groupname:" 10 50 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+            if [ $? -eq 0 ] && [ -n "$usernameVAR" ]; then
+                sudo usermod -aG "$old_groupname" "$usernameVAR"
+                whiptail --msgbox "User '$usernameVAR' added to group '$old_groupname'." 8 50
+            else
+                whiptail --msgbox "Operation cancelled or username was empty." 8 50
+            fi
+            ;;
+            
+        "REMOVE_USER")
+            usernameVAR=$(whiptail --inputbox "Enter the user to REMOVE from group $old_groupname:" 10 50 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+            if [ $? -eq 0 ] && [ -n "$usernameVAR" ]; then
+                sudo gpasswd -d "$usernameVAR" "$old_groupname"
+                whiptail --msgbox "User '$usernameVAR' removed from group '$old_groupname'." 8 50
+            else
+                whiptail --msgbox "Operation cancelled or username was empty." 8 50
+            fi
+            ;;
+
+    	"GID")
+	    groupidVAR=$(whiptail --inputbox "Enter your new GID for group:$old_groupname:" 10 50 "" --title "$INPUT_TITLE" 3>&1 1>&2 2>&3)
+            if [ $? -eq 0 ] && [ -n "$groupidVAR" ]; then
+                sudo groupmod  -g "$groupidVAR" "$old_groupname"
+                whiptail --msgbox "The GID for '$old_groupname' has changed to '$groupidVAR'." 8 50
+            else
+                whiptail --msgbox "Operation cancelled or username was empty." 8 50
+            fi  
+	    ;;
+
+        *)
+            whiptail --msgbox "Unknown option selected." 8 40
+            ;;
+    esac
+}

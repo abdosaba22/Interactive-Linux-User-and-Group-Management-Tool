@@ -1,0 +1,9 @@
+#!/bin/bash
+
+ListGroups_Function() {
+#  extract the field of group from the file using awk
+local listedgroupsVAR=$(awk -F ":" '{print NR,$1}' /etc/group ) 
+
+whiptail --scrolltext --msgbox  "Users:\n$listedgroupsVAR" 25 80 --title "List Groups"
+
+}
